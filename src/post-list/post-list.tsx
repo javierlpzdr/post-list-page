@@ -4,24 +4,49 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
-import TextField from "@mui/material/TextField";
+import Modal from "@mui/material/Modal"
+import Box from "@mui/material/Box"
 import { useQuery } from "@tanstack/react-query";
 import { styled } from "@mui/system";
+import FilterForm from './components/filter-form.tsx'
 
-import api from "../api/api";
+import api from "../api/index.ts";
 
 export const isPrimeNumber = (n: number) =>
   Math.abs(n) <= 3 || (n - 1) % 6 == 0 || (n + 1) % 6 == 0;
 
-const Title = styled("span")(({ id }) => ({
-  textStyle: isPrimeNumber(id) ? "italic" : "normal",
+const Title = styled("span")(({ postId }) => ({
+  fontStyle: isPrimeNumber(postId) ? "italic" : "normal",
 }));
 
-const PostListBody = ({ filter }) => {
-  console.log(filter);
+const EditPost = () => {
+  const [visible, setVisible] = React.useState(false)
+
+  const toggleEditPost = () => {
+    setVisible(!visible)
+  }
+
+  return (
+  <>
+    <button onClick={toggleEditPost}>Edit post</button>
+    <Modal
+      open={visible}
+      onClose={toggleEditPost}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box>
+      </Box>
+    </Modal>
+  </>
+)
+
+}
+
+const PostListBody = ({ filter }: {filter: string}) => {
   const { isPending, error, data } = useQuery({
     queryKey: ["getPosts", filter],
-    queryFn: () => api.getPosts(filter),
+    queryFn: async () => await api.getPosts(filter),
   });
 
   if (isPending) {
@@ -40,12 +65,20 @@ const PostListBody = ({ filter }) => {
     );
   }
 
+
+
   return (
     <>
       {data.map((post) => (
         <TableRow key={post.id}>
           <TableCell component="th" scope="row">
-            <Title id={post.id}>{post.title}</Title>
+            {post.id}
+          </TableCell>
+          <TableCell component="th" scope="row">
+            <Title postId={post.id}>{post.title}</Title>
+          </TableCell>
+          <TableCell component="th" scope="row">
+            <EditPost />
           </TableCell>
         </TableRow>
       ))}
@@ -56,22 +89,20 @@ const PostListBody = ({ filter }) => {
 const PostList = () => {
   const [filter, setFilter] = React.useState("");
 
-  const handleFilter = (e) => {
-    setFilter(e.target.value);
+  const handleFilter = (fields) => (e) => {
+    e.preventDefault();
+    setFilter(fields.title);
   };
 
   return (
     <>
       <h1>Post list</h1>
-      <TextField
-        id="filter-posts-field"
-        label="Filter posts"
-        variant="outlined"
-        onChange={handleFilter}
-      />
+
+      <FilterForm onSubmit={handleFilter} />
       <Table data-testid="post-data-grid">
         <TableHead>
           <TableRow>
+            <TableCell>ID</TableCell>
             <TableCell>Title</TableCell>
           </TableRow>
         </TableHead>

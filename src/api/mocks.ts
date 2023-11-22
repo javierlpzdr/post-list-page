@@ -1,5 +1,6 @@
+import { AlertTitle } from "@mui/material";
 import { rest } from "msw";
-import { API_DOMAIN } from "./api";
+import { API_DOMAIN } from "./";
 export const postsMock = [
   {
     userId: 1,
@@ -15,13 +16,13 @@ const getPostByFilter = (title: string) => {
 };
 
 const getPostsMock = rest.get(
-  new URL("/posts/", API_DOMAIN).toString(),
+  new URL("/posts*", API_DOMAIN).toString(),
   (req, res, ctx) => {
-    const { title } = req.params || {};
-
-    console.log(title);
+    const url = new URL(req.url)
+    const title = url.searchParams.get("title");
 
     if (title) return res(ctx.json(getPostByFilter(String(title))));
+    
     return res(ctx.json(postsMock));
   },
 );

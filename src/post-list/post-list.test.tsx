@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitForElementToBeRemoved } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PostList from "./";
 import { isPrimeNumber } from "./post-list";
@@ -21,12 +21,13 @@ describe("DataGrid", () => {
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
 
-  it("renders an empty data grid", () => {
+  it("renders the columns", () => {
     renderPostList();
 
     expect(screen.getByText("Post list")).toBeVisible();
     expect(screen.getByTestId("post-data-grid")).toBeVisible();
     expect(screen.getByText("Title")).toBeVisible();
+    expect(screen.getByText("ID")).toBeVisible();
   });
 
   it("shows a loader fetching the posts", () => {
@@ -68,10 +69,46 @@ describe("DataGrid", () => {
 
   it("filters the posts", async () => {
     renderPostList()
-    const filterElement = screen.getByLabelText("Filter posts");
+    const filterElement = screen.getByRole('textbox', { name: /filter posts/i })
 
-    await userEvent.type(filterElement, "hey");
+    fireEvent.change(filterElement, {target: {value: "hey"}});
+    
+    expect(filterElement).toHaveValue('hey')
+    
+    await userEvent.click(screen.getByRole('button', {
+      name: /search/i
+    }));
+
+    await waitForElementToBeRemoved(screen.getByText(/loading/i))
 
     expect(await screen.findByText(/hey/)).toBeVisible();
   });
+
+  it("shows in italic fields with ids that are prime numbers", async () => {
+    renderPostList();
+
+    const title =    
+      await screen.findByText(
+        /sunt aut facere repellat provident occaecati excepturi optio reprehenderit/,
+      );
+
+
+    screen.debug(title)
+    const style = window.getComputedStyle(title)
+
+    expect(style.fontStyle).toBe("italic")
+  })
+
+
+  it("has a button to edit the post", async () => {
+    renderPostList();
+
+    const editButton =    
+      await screen.findByText(
+        "Edit post"
+      );
+
+
+    expect(editButton).toBeVisible()
+  })
 });

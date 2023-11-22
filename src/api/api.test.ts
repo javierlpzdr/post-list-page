@@ -1,5 +1,5 @@
 import apiMock, { postsMock } from "./mocks";
-import postsApi from "./api";
+import postsApi from "./";
 import { setupServer } from "msw/node";
 
 describe("Posts API", () => {
@@ -10,6 +10,6 @@ describe("Posts API", () => {
   afterAll(() => server.close());
 
   it("gets a list of posts", async () => {
-    expect(await postsApi.getPosts()).toEqual(postsMock);
+    expect(await postsApi.getPosts("")).toEqual(postsMock);
   });
 });
