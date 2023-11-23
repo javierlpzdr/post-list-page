@@ -81,6 +81,7 @@ const EditPost = ({ post }: EditPostProps) => {
               label="Post body"
               defaultValue={post.body}
               onChange={(e) => setBody(e.target.value)}
+              multiline
             />
             {mutation.isPending ? (
               <Button disabled>Saving...</Button>
