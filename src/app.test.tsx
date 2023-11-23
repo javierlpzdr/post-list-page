@@ -1,5 +1,5 @@
 import React from "react";
-import App from "./App";
+import App from "./app";
 import { render, screen } from "@testing-library/react";
 import { TestProviders } from "./test-utils";
 
@@ -10,6 +10,6 @@ describe("App", () => {
         <App />
       </TestProviders>,
     );
-    expect(screen.getByText("Hello CodeSandbox")).toBeVisible();
+    expect(screen.getByText("Post list")).toBeVisible();
   });
 });

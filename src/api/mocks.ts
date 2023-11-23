@@ -1,4 +1,3 @@
-import { AlertTitle } from "@mui/material";
 import { rest } from "msw";
 import { API_DOMAIN } from "./";
 export const postsMock = [
@@ -27,4 +26,9 @@ const getPostsMock = rest.get(
   },
 );
 
-export default [getPostsMock];
+const updatePostMock = rest.put(new URL("/posts/:id", API_DOMAIN).toString(), async (req, res, ctx) => {
+  const response = await req.json()
+  return res(ctx.json(response));
+})
+
+export default [getPostsMock, updatePostMock];
